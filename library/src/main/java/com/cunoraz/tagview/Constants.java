@@ -13,9 +13,9 @@ public class Constants {
 	public static final float DEFAULT_TAG_TEXT_PADDING_TOP = 5;
 	public static final float DEFAULT_TAG_TEXT_PADDING_RIGHT = 8;
 	public static final float DEFAULT_TAG_TEXT_PADDING_BOTTOM = 5;
-	
 	public static final float LAYOUT_WIDTH_OFFSET = 2;
-	
+	public static final int DEFAULT_MAX_TAGS = 0;
+
 	//----------------- separator Tag Item-----------------//
 	public static final float DEFAULT_TAG_TEXT_SIZE = 14f;
 	public static final float DEFAULT_TAG_DELETE_INDICATOR_SIZE = 14f;

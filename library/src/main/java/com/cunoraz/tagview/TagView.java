@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +60,7 @@ public class TagView extends RelativeLayout {
     private int textPaddingRight;
     private int textPaddingTop;
     private int textPaddingBottom;
+    private int maxTags;
 
 
     /**
@@ -122,6 +124,7 @@ public class TagView extends RelativeLayout {
         this.textPaddingRight = (int) typeArray.getDimension(R.styleable.TagView_textPaddingRight, Utils.dipToPx(this.getContext(), Constants.DEFAULT_TAG_TEXT_PADDING_RIGHT));
         this.textPaddingTop = (int) typeArray.getDimension(R.styleable.TagView_textPaddingTop, Utils.dipToPx(this.getContext(), Constants.DEFAULT_TAG_TEXT_PADDING_TOP));
         this.textPaddingBottom = (int) typeArray.getDimension(R.styleable.TagView_textPaddingBottom, Utils.dipToPx(this.getContext(), Constants.DEFAULT_TAG_TEXT_PADDING_BOTTOM));
+        this.maxTags = typeArray.getInteger(R.styleable.TagView_maxTags, Constants.DEFAULT_MAX_TAGS);
         typeArray.recycle();
     }
 
@@ -157,6 +160,7 @@ public class TagView extends RelativeLayout {
     /**
      * tag draw
      */
+
     private void drawTags() {
 
         if (!mInitialized) {
@@ -172,6 +176,8 @@ public class TagView extends RelativeLayout {
         int listIndex = 1;// List Index
         int indexBottom = 1;// The Tag to add below
         int indexHeader = 1;// The header tag of this line
+        int tagsDrawn = 0;// The number of tags drawn in a single line
+
         Tag tagPre = null;
         for (Tag item : mTags) {
             final int position = listIndex - 1;
@@ -247,14 +253,30 @@ public class TagView extends RelativeLayout {
             //add margin of each line
             tagParams.bottomMargin = lineMargin;
 
-            if (mWidth <= total + tagWidth + Utils.dipToPx(this.getContext(), Constants.LAYOUT_WIDTH_OFFSET)) {
+            boolean ifWidthExceed;
+            // checks if maxTags is specified by the user
+            if (maxTags != Constants.DEFAULT_MAX_TAGS) {
+                    //checks if tags drawn in one line is less than max tags to be drawn
+                if (tagsDrawn < maxTags) {
+                    ifWidthExceed = false;
+                } else {
+                    ifWidthExceed = true;
+                }
+            } else {
+                // if total width of the tag doesn't exceed the screen width
+                ifWidthExceed = mWidth <= total + tagWidth + Utils.dipToPx(this.getContext(), Constants.LAYOUT_WIDTH_OFFSET);
+            }
+
+            if (ifWidthExceed) {
                 //need to add in new line
                 if (tagPre != null) tagParams.addRule(RelativeLayout.BELOW, indexBottom);
                 // initialize total param (layout padding left & layout padding right)
                 total = getPaddingLeft() + getPaddingRight();
                 indexBottom = listIndex;
                 indexHeader = listIndex;
+                tagsDrawn = 1;
             } else {
+                tagsDrawn+=1;
                 //no need to new line
                 tagParams.addRule(RelativeLayout.ALIGN_TOP, indexHeader);
                 //not header of the line
@@ -266,8 +288,6 @@ public class TagView extends RelativeLayout {
                         indexBottom = listIndex;
                     }
                 }
-
-
             }
             total += tagWidth;
             addView(tagLayout, tagParams);
@@ -408,6 +428,14 @@ public class TagView extends RelativeLayout {
 
     public void settextPaddingBottom(float textPaddingBottom) {
         this.textPaddingBottom = Utils.dipToPx(getContext(), textPaddingBottom);
+    }
+
+    public int getMaxTags() {
+        return maxTags;
+    }
+
+    public void setMaxTags(int maxTags) {
+        this.maxTags = maxTags;
     }
 
 
